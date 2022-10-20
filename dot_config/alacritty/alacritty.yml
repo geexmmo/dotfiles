@@ -1,8 +1,9 @@
 env:
   TERM: xterm-256color
+  TERMINAL: alacritty
 window:
   dynamic_padding: true
-  decorations: none
+  decorations: Full
   dynamic_title: true
 
 scrolling:
@@ -202,8 +203,8 @@ cursor:
 live_config_reload: true
 shell:
   program: /usr/bin/zsh
-  args:
-    - --login
+#  args:
+#    - --login
 
 #working_directory: None
 

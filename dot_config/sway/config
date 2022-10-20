@@ -4,7 +4,8 @@ set $left h
 set $down j
 set $up k
 set $right l
-set $term alacritty
+#set $term alacritty
+set $term foot
 
 #set $menu source "$XDG_RUNTIME_DIR/ssh-agent.env" && j4-dmenu-desktop --use-xdg-de --dmenu='bemenu-run -i --nb "#3f3f3f" --nf "#dcdccc" --fn "pango:DejaVu Sans Mono 12"' --term='$term'
 set $menu source "$XDG_RUNTIME_DIR/ssh-agent.env" && bemenu-run -i --nb "#3f3f3f" --nf "#dcdccc" --fn "pango:DejaVu Sans Mono 12"' --term='$term
@@ -16,17 +17,22 @@ bindsym $mod+Shift+e exec swaynag -t warning \
 
 #output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
 output eDP-1 res 1920x1080 pos 0 0 bg #000000 solid_color
+output eDP-1 scale 1.2
 
 exec swayidle -w \
-    timeout 300 'swaylock -f -c 000000' \
-    timeout 400 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"' \
+    timeout 300 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"' \
+    timeout 600 'swaylock -f -c 000000' \
+    timeout 3000 'systemctl hibernate' \
     before-sleep 'swaylock -f -c 000000'
 
-input 1739:0:Synaptics_TM3072-003 {
+set $lock 'swaylock -f -c 000000'
+bindswitch --reload --locked lid:on exec $lock
+
+input type:touchpad {
   tap enable
   natural_scroll enabled
   }
-input 1:1:AT_Translated_Set_2_keyboard {
+input type:keyboard {
   xkb_layout us,ru
   xkb_options grp:win_space_toggle
 }
@@ -100,21 +106,22 @@ mode "resize" {
 
 ##WOB socket
 set $WOBSOCK $XDG_RUNTIME_DIR/wob.sock
-exec mkfifo $WOBSOCK && tail -f $WOBSOCK | wob
+exec mkfifo $WOBSOCK 
+exec tail -f $WOBSOCK | wob
 
 
     bindsym $mod+r mode "resize"
-    bindsym XF86MonBrightnessDown exec light -U 5 && light -G | cut -d'.' -f1 > $WOBSOCK
-    bindsym XF86MonBrightnessUp exec light -A 5 && light -G | cut -d'.' -f1 > $WOBSOCK
-    bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5% && pamixer --get-volume > $WOBSOCK
-    bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5% && pamixer --get-volume > $WOBSOCK
-    bindsym XF86AudioMute exec pamixer --toggle-mute && ( pamixer --get-mute && echo 0 > $WOBSOCK ) || pamixer --get-volume > $WOBSOCK
+    bindsym XF86MonBrightnessDown exec brightnessctl s 5- && expr $(brightnessctl g) / 25 \* 10 > $WOBSOCK
+    bindsym XF86MonBrightnessUp exec brightnessctl s 10+ && expr $(brightnessctl g) / 25 \* 10 > $WOBSOCK
+    bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5% && pactl get-sink-volume @DEFAULT_SINK@ | cut -d'/' -f2 -s | tr -d '%' | tr -d ' ' > $WOBSOCK
+    bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5% && pactl get-sink-volume @DEFAULT_SINK@ | cut -d'/' -f2 -s | tr -d '%' | tr -d ' ' > $WOBSOCK
+    bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle && pactl get-sink-mute @DEFAULT_SINK@ | grep -q 'no' && pactl get-sink-volume @DEFAULT_SINK@ | cut -d'/' -f2 -s | tr -d '%' | tr -d ' ' >  $WOBSOCK || echo 0 > $WOBSOCK
     bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
     bindsym XF86PowerOff exec swaylock -f -c 000000
-    bindsym Shift_L+Print exec grim -g "$(slurp)" - | wl-copy
-    bindsym Print exec grim  - | wl-copy
+    bindsym Shift+Print exec grim -g "$(slurp)" - | wl-copy
+    bindsym Print exec grim - | wl-copy
 
-default_border pixel 1
+#default_border pixel 1
 smart_borders on
 
 bar {
@@ -139,3 +146,6 @@ client.urgent 		#002b36 #002b36 #93a1a1 #859900 #2aa198
 for_window [title="Firefox - Sharing Indicator"] kill
 
 include ~/.config/sway/conf.d/*
+
+exec_always systemctl import-environment --user
+# hello
