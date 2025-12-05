@@ -1,0 +1,20 @@
+# ~/.local/share/chezmoi/.chezmoidata/packages.yaml
+packages:
+  - alacritty
+  - dunst
+  - i3-wm
+  - i3blocks
+  - keepassxc
+  - pavucontrol
+  - pcmanfm-qt
+  - picom
+  - rclone
+  - rofi
+  - xsettingsd
+  - xidlehook
+  - xorg-setxkbmap
+  - xsecurelock
+  - lxqt-policykit-agent
+  - autotiling
+  - network-manager-applet
+  - flameshot

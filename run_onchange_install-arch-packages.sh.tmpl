@@ -1,0 +1,11 @@
+#!/bin/sh
+{{ if eq .chezmoi.osRelease.id "arch" }}
+
+# ... (yay installation logic goes here if needed) ...
+
+# Install packages listed in packages.yaml under the 'packages' key
+PKGS="{{ range .packages }}{{ . }} {{ end }}"
+echo "Installing packages: $PKGS"
+yay -S --noconfirm $PKGS
+
+{{ end }}
